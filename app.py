@@ -43,6 +43,7 @@ with preprocess_tab:
         with st.spinner("Sedang memproses data..."):
             df_preprocessed = run_full_preprocessing("dataMakanSiangGratis.csv")
             st.session_state.df_preprocessed = df_preprocessed
+            os.makedirs("hasil", exist_ok=True)
             df_preprocessed.to_csv("hasil/hasil_preprocessing.csv", index=False)
             st.success("✅ Preprocessing selesai.")
 
@@ -62,6 +63,7 @@ with label_tab:
         with st.spinner("Menentukan sentimen berdasarkan lexicon..."):
             df_labelled = run_labeling()
             st.session_state.df_labelled = df_labelled
+            os.makedirs("hasil", exist_ok=True)
             df_labelled.to_csv("hasil/hasil_labeling.csv", index=False)
             st.success("✅ Labeling selesai.")
 
@@ -134,6 +136,7 @@ with visual_tab:
     st.subheader("🖼️ Visualisasi Sentimen dan Kata")
     df_vis = read_csv_safely("Hasil_Labelling_Data.csv")
     if df_vis is not None:
+        os.makedirs("hasil", exist_ok=True)
         plot_sentiment_distribution(df_vis)
         create_wordcloud(' '.join(df_vis[df_vis['Sentiment'] == 'Negatif']['steming_data']), 'wordcloud_negatif.png')
         create_wordcloud(' '.join(df_vis[df_vis['Sentiment'] == 'Netral']['steming_data']), 'wordcloud_netral.png')
