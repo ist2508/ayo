@@ -43,11 +43,15 @@ with preprocess_tab:
         with st.spinner("Sedang memproses data..."):
             df_preprocessed = run_full_preprocessing("dataMakanSiangGratis.csv")
             st.session_state.df_preprocessed = df_preprocessed
+            df_preprocessed.to_csv("hasil/hasil_preprocessing.csv", index=False)
             st.success("✅ Preprocessing selesai.")
 
     if 'df_preprocessed' in st.session_state:
         with st.expander("📄 Lihat Hasil Preprocessing"):
             st.dataframe(st.session_state.df_preprocessed.head())
+        if os.path.exists("hasil/hasil_preprocessing.csv"):
+            with open("hasil/hasil_preprocessing.csv", "rb") as f:
+                st.download_button("⬇️ Unduh Hasil Preprocessing", f, file_name="hasil_preprocessing.csv", mime="text/csv")
 
 # ===========================
 # TAB 3: LABELING
@@ -58,11 +62,15 @@ with label_tab:
         with st.spinner("Menentukan sentimen berdasarkan lexicon..."):
             df_labelled = run_labeling()
             st.session_state.df_labelled = df_labelled
+            df_labelled.to_csv("hasil/hasil_labeling.csv", index=False)
             st.success("✅ Labeling selesai.")
 
     if 'df_labelled' in st.session_state:
         with st.expander("📄 Lihat Hasil Labeling"):
             st.dataframe(st.session_state.df_labelled.head())
+        if os.path.exists("hasil/hasil_labeling.csv"):
+            with open("hasil/hasil_labeling.csv", "rb") as f:
+                st.download_button("⬇️ Unduh Hasil Labeling", f, file_name="hasil_labeling.csv", mime="text/csv")
 
 # ===========================
 # TAB 4: MODELING
@@ -71,13 +79,19 @@ with model_tab:
     st.subheader("📈 Naive Bayes (Multinomial)")
     if st.button("🔍 Jalankan Model Naive Bayes"):
         with st.spinner("Melatih dan mengevaluasi model..."):
-            accuracy, report, conf_matrix, result_df = run_naive_bayes()
+            accuracy, report, conf_matrix, result_df, *_ , x_train_len, x_test_len = run_naive_bayes()
             st.session_state.accuracy = accuracy
             st.session_state.report = report
             st.session_state.df_pred = result_df
+            st.session_state.x_train_len = x_train_len
+            st.session_state.x_test_len = x_test_len
             st.success(f"✅ Akurasi Model: {accuracy:.2f}")
 
-    if 'report' in st.session_state:
+    if 'df_pred' in st.session_state:
+        st.subheader("📊 Hasil Splitting Dataset")
+        st.text(f"Jumlah Data Latih: {st.session_state.x_train_len}")
+        st.text(f"Jumlah Data Uji: {st.session_state.x_test_len}")
+
         with st.expander("📊 Laporan Evaluasi"):
             report_dict = classification_report(
                 st.session_state.df_pred['Actual'],
@@ -92,7 +106,6 @@ with model_tab:
         with st.expander("📄 Hasil Prediksi"):
             st.dataframe(st.session_state.df_pred.head())
 
-        # Tambahkan Visualisasi Diagram Batang Hasil Prediksi
         st.subheader("📊 Diagram Batang Prediksi Sentimen")
         sentiment_distribution = st.session_state.df_pred['Predicted'].value_counts()
         fig, ax = plt.subplots(figsize=(7, 5))
@@ -119,18 +132,16 @@ with model_tab:
 # ===========================
 with visual_tab:
     st.subheader("🖼️ Visualisasi Sentimen dan Kata")
-    if st.button("📊 Buat & Tampilkan Visualisasi"):
-        with st.spinner("Membuat grafik dan wordcloud..."):
-            df_vis = read_csv_safely("Hasil_Labelling_Data.csv")
-            if df_vis is not None:
-                plot_sentiment_distribution(df_vis)
-                create_wordcloud(' '.join(df_vis[df_vis['Sentiment'] == 'Negatif']['steming_data']), 'wordcloud_negatif.png')
-                create_wordcloud(' '.join(df_vis[df_vis['Sentiment'] == 'Netral']['steming_data']), 'wordcloud_netral.png')
-                create_wordcloud(' '.join(df_vis[df_vis['Sentiment'] == 'Positif']['steming_data']), 'wordcloud_positif.png')
-                plot_top_words(df_vis, 'Negatif', 'top_words_negatif.png')
-                plot_top_words(df_vis, 'Netral', 'top_words_netral.png')
-                plot_top_words(df_vis, 'Positif', 'top_words_positif.png')
-                st.session_state.show_visual = True
+    df_vis = read_csv_safely("Hasil_Labelling_Data.csv")
+    if df_vis is not None:
+        plot_sentiment_distribution(df_vis)
+        create_wordcloud(' '.join(df_vis[df_vis['Sentiment'] == 'Negatif']['steming_data']), 'wordcloud_negatif.png')
+        create_wordcloud(' '.join(df_vis[df_vis['Sentiment'] == 'Netral']['steming_data']), 'wordcloud_netral.png')
+        create_wordcloud(' '.join(df_vis[df_vis['Sentiment'] == 'Positif']['steming_data']), 'wordcloud_positif.png')
+        plot_top_words(df_vis, 'Negatif', 'top_words_negatif.png')
+        plot_top_words(df_vis, 'Netral', 'top_words_netral.png')
+        plot_top_words(df_vis, 'Positif', 'top_words_positif.png')
+        st.session_state.show_visual = True
 
     if st.session_state.get("show_visual"):
         col1, col2 = st.columns(2)
