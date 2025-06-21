@@ -56,4 +56,4 @@ def run_naive_bayes(labelled_file="Hasil_Labelling_Data.csv"):
     result_df.to_csv("hasil/Hasil_pred_MultinomialNB.csv", index=False, encoding='utf8')
     st.success("📄 Hasil prediksi disimpan sebagai hasil/Hasil_pred_MultinomialNB.csv")
 
-    return accuracy, class_report, conf_matrix, result_df, len(X_train), len(X_test)
+    return accuracy, class_report, conf_matrix, result_df, X_train.shape[0], X_test.shape[0]
