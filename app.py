@@ -163,5 +163,7 @@ with visual_tab:
             if os.path.exists("hasil/top_words_positif.png"):
                 st.image("hasil/top_words_positif.png", caption="Top Words Positif")
 
-        st.image("hasil/sentimen_distribution.png", caption="Distribusi Sentimen")
-        st.image("hasil/conf_matrix_mnb.png", caption="Confusion Matrix MultinomialNB")
+        if os.path.exists("hasil/sentimen_distribution.png"):
+            st.image("hasil/sentimen_distribution.png", caption="Distribusi Sentimen")
+        if os.path.exists("hasil/conf_matrix_mnb.png"):
+            st.image("hasil/conf_matrix_mnb.png", caption="Confusion Matrix MultinomialNB")
