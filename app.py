@@ -87,6 +87,7 @@ with model_tab:
             st.session_state.df_pred = result_df
             st.session_state.x_train_len = x_train_len
             st.session_state.x_test_len = x_test_len
+            result_df.to_csv("hasil/Hasil_pred_MultinomialNB.csv", index=False)
             st.success(f"✅ Akurasi Model: {accuracy:.2f}")
 
     if 'df_pred' in st.session_state:
@@ -133,14 +134,14 @@ with model_tab:
 # TAB 5: VISUALISASI
 # ===========================
 with visual_tab:
-    st.subheader("🖼️ Visualisasi Sentimen dan Kata")
-    df_vis = read_csv_safely("Hasil_Labelling_Data.csv")
+    st.subheader("🖼️ Visualisasi Sentimen dan Kata Berdasarkan Hasil Prediksi")
+    df_vis = read_csv_safely("hasil/Hasil_pred_MultinomialNB.csv")
     if df_vis is not None:
         os.makedirs("hasil", exist_ok=True)
         plot_sentiment_distribution(df_vis)
-        create_wordcloud(' '.join(df_vis[df_vis['Sentiment'] == 'Negatif']['steming_data']), 'wordcloud_negatif.png')
-        create_wordcloud(' '.join(df_vis[df_vis['Sentiment'] == 'Netral']['steming_data']), 'wordcloud_netral.png')
-        create_wordcloud(' '.join(df_vis[df_vis['Sentiment'] == 'Positif']['steming_data']), 'wordcloud_positif.png')
+        create_wordcloud(' '.join(df_vis[df_vis['Predicted'] == 'Negatif']['steming_data']), 'wordcloud_negatif.png')
+        create_wordcloud(' '.join(df_vis[df_vis['Predicted'] == 'Netral']['steming_data']), 'wordcloud_netral.png')
+        create_wordcloud(' '.join(df_vis[df_vis['Predicted'] == 'Positif']['steming_data']), 'wordcloud_positif.png')
         plot_top_words(df_vis, 'Negatif', 'top_words_negatif.png')
         plot_top_words(df_vis, 'Netral', 'top_words_netral.png')
         plot_top_words(df_vis, 'Positif', 'top_words_positif.png')
